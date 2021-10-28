@@ -11,6 +11,8 @@ namespace WebApplication1.Controllers
 {
 	public class HomeController : Controller
 	{
+		public static int CurrentCount = 0;
+
 		private readonly ILogger<HomeController> _logger;
 
 		public HomeController(ILogger<HomeController> logger)
@@ -18,25 +20,48 @@ namespace WebApplication1.Controllers
 			_logger = logger;
 		}
 
+		/// <summary>
+		/// GET: Trang chủ
+		/// Bộ đếm sử dụng Blazor
+		/// </summary>
+		/// <returns></returns>
 		public IActionResult Index()
 		{
 			return View();
 		}
 
-		public IActionResult Privacy()
+		/// <summary>
+		/// GET: Trang bộ đếm sử dụng JS
+		/// </summary>
+		/// <returns></returns>
+		public IActionResult Counter()
 		{
 			return View();
+		}
+
+		/// <summary>
+		/// GET: Trang tính tiền điện sử dụng Blazor
+		/// </summary>
+		/// <returns></returns>
+		public IActionResult Calculator()
+		{
+			return View();
+		}
+
+		/// <summary>
+		/// GET: Tạo API tăng biến đếm với URL tùy chỉnh
+		/// </summary>
+		/// <returns></returns>
+		[HttpGet("api/Increment")]
+		public int Increment()
+		{
+			return ++CurrentCount;
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()
 		{
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
-
-		public IActionResult Calculator()
-		{
-			return View();
 		}
 
 		public IActionResult Blazor()

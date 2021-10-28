@@ -1,0 +1,27 @@
+﻿@using WebApplication1.Controllers
+@{
+	ViewData["Title"] = "Bộ đếm";
+}
+
+<div class="text-center">
+	<h1 class="display-4">Bạn có thể sử dụng Javascript trên trang này để tăng bộ đếm</h1>
+	<div>
+		<p>Bộ đếm hiện tại: <span id="counter">@HomeController.CurrentCount</span></p>
+		<button class="btn btn-primary" onclick="Increment();">Nhấn vào đây</button>
+	</div>
+</div>
+
+@section Scripts{
+	<script>
+		function Increment() {
+			fetch('api/Increment')
+				.then(response => response.json())
+				.then(function (data) {
+					document.getElementById('counter').innerHTML = data;
+				})
+				.catch(function (error) {
+					alert(error);
+				});
+		}
+	</script>
+}

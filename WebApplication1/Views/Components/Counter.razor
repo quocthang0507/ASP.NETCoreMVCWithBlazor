@@ -1,14 +1,17 @@
-﻿<h1 class="display-4">Counter</h1>
+﻿@page "/counter"
 
-<p>Current count: @currentCount</p>
+@using WebApplication1.Controllers
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<h1 class="display-4">Bạn có thể sử dụng Blazor trên trang này để tăng bộ đếm</h1>
+
+<p>Bộ đếm hiện tại: @HomeController.CurrentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Nhấn vào đây</button>
 
 @code {
-	private int currentCount = 0;
 
 	private void IncrementCount()
 	{
-		currentCount++;
+		HomeController.CurrentCount++;
 	}
 }
