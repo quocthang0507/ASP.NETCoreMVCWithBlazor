@@ -1,0 +1,16 @@
+﻿@using WebApplication1.Views.Components
+@{
+	ViewData["Title"] = "Calculator";
+}
+
+<div class="text-center">
+	<component type="typeof(Calculator)" render-mode="ServerPrerendered" />
+</div>
+
+@section Scripts{
+	<script>
+		window.ShowAlert = (message) => {
+			alert(message);
+		}
+	</script>
+}

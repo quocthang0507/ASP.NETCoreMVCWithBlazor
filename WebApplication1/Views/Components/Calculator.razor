@@ -1,0 +1,161 @@
+﻿@using System.Globalization
+@inject IJSRuntime JS
+
+<h1 class="display-4">Calculator</h1>
+
+<div class="card">
+	<div class="card-header">
+		<h2>Công cụ tính tiền điện</h2>
+	</div>
+	<div class="card-body">
+		<div class="form-group">
+			<label for="enterCSM">Chỉ số mới</label>
+			<input class="form-control" aria-describedby="enterCSM" placeholder="Nhập chỉ số mới" @bind="@chiSoMoi" type="number" min="0" />
+		</div>
+		<div class="form-group">
+			<label for="enterCSM">Chỉ số cũ</label>
+			<input class="form-control" aria-describedby="enterCSC" placeholder="Nhập chỉ số cũ" @bind="@chiSoCu" type="number" min="0" />
+		</div>
+		<button class="btn btn-primary" @onclick="TinhToan">Tính toán</button>
+		<br />
+		<br />
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">Bậc thang</th>
+					<th scope="col">Đơn giá theo <br /> QĐ 648/QĐ-BCT (đồng/kWh)</th>
+					<th scope="col">Sản lượng (kWh)</th>
+					<th scope="col">Thành tiền (đồng)</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th scope="row">Bậc thang 1</th>
+					<td>@bangGiaDien[0].Item1.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+					<td>@bangGiaDien[0].Item2</td>
+					<td>@tienBac1.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+				</tr>
+				<tr>
+					<th scope="row">Bậc thang 2</th>
+					<td>@bangGiaDien[1].Item1.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+					<td>@bangGiaDien[1].Item2</td>
+					<td>@tienBac2.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+				</tr>
+				<tr>
+					<th scope="row">Bậc thang 3</th>
+					<td>@bangGiaDien[2].Item1.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+					<td>@bangGiaDien[2].Item2</td>
+					<td>@tienBac3.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+				</tr>
+				<tr>
+					<th scope="row">Bậc thang 4</th>
+					<td>@bangGiaDien[3].Item1.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+					<td>@bangGiaDien[3].Item2</td>
+					<td>@tienBac4.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+				</tr>
+				<tr>
+					<th scope="row">Bậc thang 5</th>
+					<td>@bangGiaDien[4].Item1.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+					<td>@bangGiaDien[4].Item2</td>
+					<td>@tienBac5.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+				</tr>
+				<tr>
+					<th scope="row">Bậc thang 6</th>
+					<td>@bangGiaDien[5].Item1.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+					<td>@bangGiaDien[5].Item2</td>
+					<td>@tienBac6.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</td>
+				</tr>
+			</tbody>
+		</table>
+		<br />
+		<div class="alert alert-secondary" role="alert">
+			<p>Tiền điện chưa thuế (1): <strong>@tienDien.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</strong></p>
+			<p>Tiền thuế GTGT (10%) (2): <strong>@tienThue.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</strong></p>
+			<p>Tổng cộng phải thanh toán (3)=(1)+(2): <strong>@tongTien.ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"))</strong></p>
+		</div>
+	</div>
+</div>
+
+@code {
+	int chiSoMoi = 0;
+	int chiSoCu = 0;
+
+	(int, int)[] bangGiaDien = { (1678, 50), (1734, 50), (2014, 100), (2536, 100), (2834, 100), (2927, 0) };
+
+	decimal tienBac1 = 0;
+	decimal tienBac2 = 0;
+	decimal tienBac3 = 0;
+	decimal tienBac4 = 0;
+	decimal tienBac5 = 0;
+	decimal tienBac6 = 0;
+
+	decimal tienDien { get { return tienBac1 + tienBac2 + tienBac3 + tienBac4 + tienBac5 + tienBac6; } }
+	decimal tienThue { get { return Math.Round(tienDien * (decimal)0.1); } }
+	decimal tongTien { get { return tienDien + tienThue; } }
+
+	private async Task TinhToan()
+	{
+		if (chiSoMoi < chiSoCu)
+			await JS.InvokeVoidAsync("ShowAlert", "Chỉ số mới không được nhỏ hơn chỉ số cũ");
+		else if (chiSoCu < 0 || chiSoMoi < 0)
+			await JS.InvokeVoidAsync("ShowAlert", "Chỉ số mới hoặc chỉ số cũ không được nhỏ hơn không");
+		else
+		{
+			int tieuThu = chiSoMoi - chiSoCu;
+			int tieuThuMoiBac;
+			if (tieuThu > 400)
+			{
+				tieuThuMoiBac = tieuThu - 400;
+				tienBac6 = tieuThuMoiBac * bangGiaDien[5].Item1;
+				bangGiaDien[5].Item2 = tieuThuMoiBac;
+				tieuThu = 400;
+			}
+			else
+				bangGiaDien[5].Item2 = 0;
+
+			if (tieuThu > 300)
+			{
+				tieuThuMoiBac = tieuThu - 300;
+				tienBac5 = tieuThuMoiBac * bangGiaDien[4].Item1;
+				bangGiaDien[4].Item2 = tieuThuMoiBac;
+				tieuThu = 300;
+			}
+			else
+				bangGiaDien[4].Item2 = 0;
+
+			if (tieuThu > 200)
+			{
+				tieuThuMoiBac = tieuThu - 200;
+				tienBac4 = tieuThuMoiBac * bangGiaDien[3].Item1;
+				bangGiaDien[3].Item2 = tieuThuMoiBac;
+				tieuThu = 200;
+			}
+			else
+				bangGiaDien[3].Item2 = 0;
+
+			if (tieuThu > 100)
+			{
+				tieuThuMoiBac = tieuThu - 100;
+				tienBac3 = tieuThuMoiBac * bangGiaDien[2].Item1;
+				bangGiaDien[2].Item2 = tieuThuMoiBac;
+				tieuThu = 100;
+			}
+			else
+				bangGiaDien[2].Item2 = 0;
+
+			if (tieuThu > 50)
+			{
+				tieuThuMoiBac = tieuThu - 50;
+				tienBac2 = tieuThuMoiBac * bangGiaDien[1].Item1;
+				bangGiaDien[1].Item2 = tieuThuMoiBac;
+				tieuThu = 50;
+			}
+			else
+				bangGiaDien[1].Item2 = 0;
+
+			tienBac1 = tieuThu * bangGiaDien[0].Item1;
+			bangGiaDien[0].Item2 = tieuThu;
+			tieuThu = 0;
+		}
+	}
+}
